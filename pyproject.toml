@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "anomaly-sample"
+version = "0.1.0"
+description = ""
+authors = ["ringring.o.152693@gmail.com"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+polars = "^0.20.18"
+jupyter = "^1.0.0"
+numpy = "^1.26.4"
+scikit-learn = "^1.4.1.post1"
+pandas = "^2.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
