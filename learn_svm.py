@@ -10,15 +10,22 @@ for i in range(1000):
     df = pd.read_csv(f'./sample_data/api_{i}.csv')
     df['month'] = pd.to_datetime(df['date']).dt.month
     df['day_of_week'] = pd.to_datetime(df['date']).dt.dayofweek
-    df['is_holiday'] = ... # 祝日フラグの設定
-    df['prev_count'] = df['access_count'].shift(1)
-    df['week_ago_count'] = df['access_count'].shift(7)
-    df['month_ago_count'] = df['access_count'].shift(30)
-    df['year_ago_count'] = df['access_count'].shift(365)
+    # 前日のアクセス数が存在しない場合は、同じ月の平均で補完
+    df['prev_count'] = df.groupby(pd.to_datetime(df['date']).dt.month)['access_count'].shift(1).fillna(df.groupby(pd.to_datetime(df['date']).dt.month)['access_count'].transform('mean'))
+    
+    # 1週間前のアクセス数が存在しない場合は、同じ週の平均で補完
+    df['week_ago_count'] = df.groupby(pd.to_datetime(df['date']).dt.isocalendar().week)['access_count'].shift(1).fillna(df.groupby(pd.to_datetime(df['date']).dt.isocalendar().week)['access_count'].transform('mean'))
+    
+    # 1ヶ月前のアクセス数が存在しない場合は、同じ月の平均で補完
+    df['month_ago_count'] = df.groupby(pd.to_datetime(df['date']).dt.month)['access_count'].shift(1).fillna(df.groupby(pd.to_datetime(df['date']).dt.month)['access_count'].transform('mean'))
+    
+    # 1年前のアクセス数が存在しない場合は、同じ月の平均で補完
+    df['year_ago_count'] = df.groupby(pd.to_datetime(df['date']).dt.month)['access_count'].shift(12).fillna(df.groupby(pd.to_datetime(df['date']).dt.month)['access_count'].transform('mean'))
+    
     api_data.append(df)
 
 # 2. 特徴量の抽出
-features = ['month', 'day_of_week', 'is_holiday', 'prev_count', 'week_ago_count', 'month_ago_count', 'year_ago_count']
+features = ['month', 'day_of_week', 'prev_count', 'week_ago_count', 'month_ago_count', 'year_ago_count']
 X = pd.concat(api_data, ignore_index=True)[features].values
 
 # 3. データの標準化
